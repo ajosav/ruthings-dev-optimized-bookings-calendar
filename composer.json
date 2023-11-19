@@ -1,0 +1,18 @@
+{
+    "name": "runthings/wc-bookings-availability-cache",
+    "description": "Caches product bookings to optimize woocommerce calendars ajax calls",
+    "type" : "project",
+    "license": "GPL-3.0",
+    "autoload": {
+        "psr-4": {
+            "Runthings\\WcBookingsAvailabilityCache\\": "includes/"
+        }
+    },
+    "authors": [
+        {
+            "name": "joshua",
+            "email": "ajosavboy@gmail.com"
+        }
+    ],
+    "require": {}
+}
