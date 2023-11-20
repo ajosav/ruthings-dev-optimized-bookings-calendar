@@ -10,6 +10,7 @@ class RuthingsDevWCBookingsCacheDeactivate
 {
     public static function deactivate()
     {
+        // flush cache
         flush_rewrite_rules();
     }
 }

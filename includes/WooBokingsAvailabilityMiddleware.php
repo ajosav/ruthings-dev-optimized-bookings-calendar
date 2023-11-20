@@ -34,7 +34,9 @@ class WooBokingsAvailabilityMiddleware
         try {
 
             $args                          = array();
-            $product                       = get_wc_product_booking($product_id);
+
+            // cache product if it's already checked
+            $product                       = $this->get_product_by_id($product_id);
             $args['availability_rules']    = array();
             $args['availability_rules'][0] = $product->get_availability_rules();
 
@@ -72,7 +74,7 @@ class WooBokingsAvailabilityMiddleware
                     $args['availability_rules'][$resource->ID] = $product->get_availability_rules($resource->ID);
                 }
             }
-
+            // Cache booked day blocks
             $booked = WC_Bookings_Controller::find_booked_day_blocks(
                 $product_id,
                 $min_date,
@@ -119,5 +121,16 @@ class WooBokingsAvailabilityMiddleware
         $wc_bookings_ajax_class = WC_Bookings_WC_Ajax::class;
         //        remove_all_actions('wc_ajax_wc_bookings_find_booked_day_blocks');
         remove_action('wc_ajax_wc_bookings_find_booked_day_blocks', [$wc_bookings_ajax_class, 'find_booked_day_blocks']);
+    }
+
+    private function get_product_by_id($product_id)
+    {
+        $transient_name = 'wc_cache_product_post_' . $product_id;
+        if ($product = get_transient($transient_name)) {
+            return $product;
+        }
+
+        $product = get_wc_product_booking($product_id);
+        return set_transient($transient_name, $product, DAY_IN_SECONDS);
     }
 }
