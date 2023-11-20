@@ -131,6 +131,7 @@ class WooBokingsAvailabilityMiddleware
         }
 
         $product = get_wc_product_booking($product_id);
-        return set_transient($transient_name, $product, DAY_IN_SECONDS);
+        set_transient($transient_name, $product, DAY_IN_SECONDS);
+        return $product;
     }
 }
