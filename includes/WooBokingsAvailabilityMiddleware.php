@@ -5,6 +5,7 @@ namespace Runthings\WcBookingsAvailabilityCache;
 use Exception;
 use WC_Bookings_Controller;
 use WC_Bookings_WC_Ajax;
+use WC_Product_Booking;
 
 
 /**
@@ -13,7 +14,7 @@ use WC_Bookings_WC_Ajax;
 
 class WooBokingsAvailabilityMiddleware
 {
-    public function __construct()
+    public function init()
     {
         add_action('init', [$this, 'remove_wc_bookings_find_booked_day_blocks']);
         add_action('wc_ajax_wc_bookings_find_booked_day_blocks', [$this, 'wc_cache_find_booked_day_blocks']);
@@ -76,7 +77,7 @@ class WooBokingsAvailabilityMiddleware
             }
             // Cache booked day blocks
             $booked = WC_Bookings_Controller::find_booked_day_blocks(
-                $product_id,
+                $product,
                 $min_date,
                 $max_date,
                 'Y-n-j',
@@ -119,7 +120,6 @@ class WooBokingsAvailabilityMiddleware
     public function remove_wc_bookings_find_booked_day_blocks()
     {
         $wc_bookings_ajax_class = WC_Bookings_WC_Ajax::class;
-        //        remove_all_actions('wc_ajax_wc_bookings_find_booked_day_blocks');
         remove_action('wc_ajax_wc_bookings_find_booked_day_blocks', [$wc_bookings_ajax_class, 'find_booked_day_blocks']);
     }
 

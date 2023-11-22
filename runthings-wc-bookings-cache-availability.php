@@ -67,5 +67,6 @@ register_deactivation_hook(__FILE__, 'deactivate_ruthings_wc_bookings_cache_plug
  * Initialize all the core classes of the plugin
  */
 if (class_exists('Runthings\\WcBookingsAvailabilityCache\\WooBokingsAvailabilityMiddleware')) {
-    new WooBokingsAvailabilityMiddleware();
+    $runthings_wc_bookings_middleware = new WooBokingsAvailabilityMiddleware();
+    $runthings_wc_bookings_middleware->init();
 }
