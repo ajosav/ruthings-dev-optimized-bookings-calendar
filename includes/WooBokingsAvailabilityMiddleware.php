@@ -3,7 +3,8 @@
 namespace Runthings\WcBookingsAvailabilityCache;
 
 use Exception;
-use WC_Bookings_Controller;
+use Runthings\WcBookingsAvailabilityCache\Integrations\RunthingsWooBookingsAvailabilityCalendarPicker;
+use Runthings\WcBookingsAvailabilityCache\Integrations\WCBookingsAvailabilityController;
 use WC_Bookings_WC_Ajax;
 use WC_Product_Booking;
 
@@ -17,12 +18,14 @@ class WooBokingsAvailabilityMiddleware
     public function init()
     {
         add_action('init', [$this, 'remove_wc_bookings_find_booked_day_blocks']);
-        add_action('wc_ajax_wc_bookings_find_booked_day_blocks', [$this, 'wc_cache_find_booked_day_blocks']);
+        add_action('wc_ajax_wc_bookings_find_booked_day_blocks', [$this, 'wc_runthings_cache_find_booked_day_blocks']);
+        add_action('plugins_loaded', array($this, 'include_action_classes'), 20);
     }
 
-    public function wc_cache_find_booked_day_blocks()
+    public function wc_runthings_cache_find_booked_day_blocks()
     {
         check_ajax_referer('find-booked-day-blocks', 'security');
+
         // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotValidated
         $product_id  = !empty($_GET['product_id']) ? absint($_GET['product_id']) : null;
         $resource_id = !empty($_GET['resource_id']) ? absint($_GET['resource_id']) : null;
@@ -35,9 +38,7 @@ class WooBokingsAvailabilityMiddleware
         try {
 
             $args                          = array();
-
-            // cache product if it's already checked
-            $product                       = $this->get_product_by_id($product_id);
+            $product                       = wc_get_product($product_id);
             $args['availability_rules']    = array();
             $args['availability_rules'][0] = $product->get_availability_rules();
 
@@ -75,8 +76,8 @@ class WooBokingsAvailabilityMiddleware
                     $args['availability_rules'][$resource->ID] = $product->get_availability_rules($resource->ID);
                 }
             }
-            // Cache booked day blocks
-            $booked = WC_Bookings_Controller::find_booked_day_blocks(
+
+            $booked = WCBookingsAvailabilityController::find_booked_day_blocks(
                 $product,
                 $min_date,
                 $max_date,
@@ -93,7 +94,7 @@ class WooBokingsAvailabilityMiddleware
 
             $buffer_days = array();
             if (!in_array($product->get_duration_unit(), array('minute', 'hour'), true)) {
-                $buffer_days = WC_Bookings_Controller::get_buffer_day_blocks_for_booked_days($product, $args['fully_booked_days']);
+                $buffer_days = WCBookingsAvailabilityController::get_buffer_day_blocks_for_booked_days($product, $args['fully_booked_days']);
             }
 
             $args['buffer_days'] = $buffer_days;
@@ -123,15 +124,8 @@ class WooBokingsAvailabilityMiddleware
         remove_action('wc_ajax_wc_bookings_find_booked_day_blocks', [$wc_bookings_ajax_class, 'find_booked_day_blocks']);
     }
 
-    private function get_product_by_id($product_id)
+    public function include_action_classes()
     {
-        $transient_name = 'wc_cache_product_post_' . $product_id;
-        if ($product = get_transient($transient_name)) {
-            return $product;
-        }
-
-        $product = get_wc_product_booking($product_id);
-        set_transient($transient_name, $product, DAY_IN_SECONDS);
-        return $product;
+        new RunthingsWooBookingsAvailabilityCalendarPicker;
     }
 }

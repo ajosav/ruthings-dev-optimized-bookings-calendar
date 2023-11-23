@@ -4,6 +4,8 @@ namespace Runthings\WcBookingsAvailabilityCache\Integrations;
 
 use Exception;
 use WC_Booking;
+use WC_Booking_Data_Store;
+use WC_Bookings_Cache;
 use WC_Bookings_Controller;
 use WC_Product;
 use WC_Product_Booking;
@@ -12,7 +14,7 @@ use WC_Product_Booking;
  * @package  WCBookingsCacheController
  */
 
-class WCBookingsAvailabilityCacheController extends WC_Bookings_Controller
+class WCBookingsAvailabilityController extends WC_Bookings_Controller
 {
     /**
      * Finds days which are partially booked & fully booked already.
@@ -290,7 +292,7 @@ class WCBookingsAvailabilityCacheController extends WC_Bookings_Controller
          * }
          * @param WC_Product $bookable_product
          */
-        return apply_filters( 'woocommerce_bookings_booked_day_blocks', $booked_day_blocks, $bookable_product );
+        return apply_filters( 'runthings_calendar_availability_booked_day_blocks', $booked_day_blocks, $bookable_product, $min_booking_date, $max_booking_date);
     }
 
     /**
