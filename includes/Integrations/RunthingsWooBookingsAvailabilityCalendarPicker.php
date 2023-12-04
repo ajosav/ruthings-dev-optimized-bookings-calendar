@@ -8,6 +8,7 @@ use WC_Product_Accommodation_Booking;
 
 class RunthingsWooBookingsAvailabilityCalendarPicker
 {
+    //    This filter is used to override woobookings find_booked_blocks filter
     public function __construct() {
         add_filter('runthings_calendar_availability_booked_day_blocks', [$this, 'update_fully_booked_dates'], 10, 5);
     }
@@ -129,6 +130,7 @@ class RunthingsWooBookingsAvailabilityCalendarPicker
         return ! empty( $available_slots[ $time ] ) ? $available_slots[ $time ]['available'] : 0;
     }
 
+    //    Get time slots between the given start_date and end_date
     private function get_time_slots_available_for_resource($product, $resource, $start_date, $end_date) {
         $blocks           = $product->get_blocks_in_range_for_day( $start_date, $end_date, $resource, array() );
         return wc_bookings_get_time_slots( $product, $blocks, array(), $resource, $start_date, $end_date );

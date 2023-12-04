@@ -15,6 +15,9 @@ use WC_Product_Booking;
 
 class WooBokingsAvailabilityMiddleware
 {
+    //    overriding the woobookings calendar ajax call here
+    //    we are removing the actions used to return calendar bookings and created a custom function
+    //    so we could implement custom filters and make some optimizations
     public function init()
     {
         add_action('init', [$this, 'remove_wc_bookings_find_booked_day_blocks']);
@@ -22,6 +25,7 @@ class WooBokingsAvailabilityMiddleware
         add_action('plugins_loaded', array($this, 'include_action_classes'), 20);
     }
 
+    //    Replaced removed wc_ajax_wc_bookings_find_booked_day_blocks action with this
     public function wc_runthings_cache_find_booked_day_blocks()
     {
         check_ajax_referer('find-booked-day-blocks', 'security');
@@ -118,12 +122,14 @@ class WooBokingsAvailabilityMiddleware
         }
     }
 
+    //    remove wc_ajax_wc_bookings_find_booked_day_blocks action introduced by wc_bookings
     public function remove_wc_bookings_find_booked_day_blocks()
     {
         $wc_bookings_ajax_class = WC_Bookings_WC_Ajax::class;
         remove_action('wc_ajax_wc_bookings_find_booked_day_blocks', [$wc_bookings_ajax_class, 'find_booked_day_blocks']);
     }
 
+    //    Include classes that contains filters from woobookings accomodation
     public function include_action_classes()
     {
         new RunthingsWooBookingsAvailabilityCalendarPicker;
